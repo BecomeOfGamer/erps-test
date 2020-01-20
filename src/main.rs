@@ -71,7 +71,7 @@ fn main() -> std::result::Result<(), Error> {
                 .help("Client identifier"),
         ).get_matches();
 
-    let server_addr = matches.value_of("SERVER").unwrap_or("59.126.81.58").to_owned();
+    let server_addr = matches.value_of("SERVER").unwrap_or("114.32.129.195").to_owned();
     let server_port = matches.value_of("PORT").unwrap_or("1883").to_owned();
     let client_id = matches
         .value_of("CLIENT_ID")
@@ -100,7 +100,7 @@ fn main() -> std::result::Result<(), Error> {
     mqtt_client.subscribe("room/+/res/start", QoS::AtMostOnce).unwrap();
     mqtt_client.subscribe("room/+/res/start_get", QoS::AtMostOnce).unwrap();
 
-    mqtt_client.subscribe("game/+/res/game_singal", QoS::AtMostOnce).unwrap();
+    mqtt_client.subscribe("game/+/res/game_signal", QoS::AtMostOnce).unwrap();
     mqtt_client.subscribe("game/+/res/game_over", QoS::AtMostOnce).unwrap();
     mqtt_client.subscribe("game/+/res/start_game", QoS::AtMostOnce).unwrap();
     mqtt_client.subscribe("game/+/res/choose", QoS::AtMostOnce).unwrap();
@@ -166,7 +166,7 @@ fn main() -> std::result::Result<(), Error> {
     let restart_game = Regex::new(r"\w+/(\w+)/res/start_game").unwrap();
     let restart_get = Regex::new(r"\w+/(\w+)/res/start_get").unwrap();
     let restart = Regex::new(r"\w+/(\w+)/res/start").unwrap();
-    let regame_singal = Regex::new(r"\w+/(\w+)/res/game_singal").unwrap();
+    let regame_singal = Regex::new(r"\w+/(\w+)/res/game_signal").unwrap();
 
     let redead = Regex::new(r"\w+/(\w+)/res/dead").unwrap();
 

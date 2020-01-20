@@ -175,11 +175,11 @@ pub struct UserInfoData {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct UserGift {
-    pub A: u16,
-    pub B: u16,
-    pub C: u16,
-    pub D: u16,
-    pub E: u16,
+    pub a: u16,
+    pub b: u16,
+    pub c: u16,
+    pub d: u16,
+    pub e: u16,
 }
 
 pub enum UserEvent {
@@ -195,7 +195,7 @@ pub enum UserEvent {
     StartGame(StartGameRes),
     Start(StartRes),
     StartGet(StartGetMsg),
-    GameSingal(GameSingalRes),
+    GameSignal(GameSingalRes),
 }
 
 fn get_user(id: &String, users: &BTreeMap<String, Rc<RefCell<User>>>) -> Option<Rc<RefCell<User>>> {
@@ -216,7 +216,7 @@ pub fn init(msgtx: Sender<MqttMsg>) -> Sender<UserEvent> {
     thread::spawn(move || {
         let mut rooms: IndexMap<String, Rc<RefCell<RoomRecord>>> = IndexMap::new();
         let mut TotalUsers: BTreeMap<String, Rc<RefCell<User>>> = BTreeMap::new();
-        for i in 0..10 {
+        for i in 0..1000 {
             TotalUsers.insert(i.to_string(),
                 Rc::new(RefCell::new(
                 User {
@@ -231,7 +231,7 @@ pub fn init(msgtx: Sender<MqttMsg>) -> Sender<UserEvent> {
         loop {
             select! {
                 recv(update500ms) -> _ => {
-                    println!("rx len: {}, tx len: {}", rx.len(), tx2.len());
+                    //println!("rx len: {}, tx len: {}", rx.len(), tx2.len());
                     for (i, u) in &mut TotalUsers {
                         //println!("User {} Action", i);
                         u.borrow_mut().next_action(&mut tx, &mut rooms);
@@ -243,13 +243,14 @@ pub fn init(msgtx: Sender<MqttMsg>) -> Sender<UserEvent> {
                             UserEvent::Start(x) => {
                                 
                             },
-                            UserEvent::GameSingal(x) => {
+                            UserEvent::GameSignal(x) => {
                                 let mut tx = tx.clone();
-                                thread::spawn(move || {
-                                    thread::sleep_ms(3000);
+                                println!("GameSignal!");
+                                //thread::spawn(move || {
+                                //    thread::sleep_ms(3000);
                                     tx.try_send(MqttMsg{topic:format!("game/{}/send/start_game", x.game), 
                                                 msg: format!(r#"{{"game":{},"action":"init"}}"#, x.game)}).unwrap();
-                                });
+                                //});
                             },
                             UserEvent::StartGame(x) => {
                                 //println!("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -257,8 +258,10 @@ pub fn init(msgtx: Sender<MqttMsg>) -> Sender<UserEvent> {
                                 let mut data1: GameInfoData = Default::default();
                                 let mut rng = rand::thread_rng();
                                 let mut r = rng.gen_range(1, 3);
+                                let w = rng.gen_range(1, 3);
                                 for m in &x.member {
-                                    if m.team == r {
+                                    
+                                    if m.team == w {
                                         data.win.push(m.id.clone());
                                     } else {
                                         data.lose.push(m.id.clone());
@@ -297,15 +300,15 @@ pub fn init(msgtx: Sender<MqttMsg>) -> Sender<UserEvent> {
                                         userinfo.assist = r;
 
                                         r = rng.gen_range(0, 4);
-                                        userinfo.gift.A = r;
+                                        userinfo.gift.a = r;
                                         r = rng.gen_range(0, 4);
-                                        userinfo.gift.B = r;
+                                        userinfo.gift.b = r;
                                         r = rng.gen_range(0, 4);
-                                        userinfo.gift.C = r;
+                                        userinfo.gift.c = r;
                                         r = rng.gen_range(0, 4);
-                                        userinfo.gift.D = r;
+                                        userinfo.gift.d = r;
                                         r = rng.gen_range(0, 4);
-                                        userinfo.gift.E = r;
+                                        userinfo.gift.e = r;
 
 
                                         data1.users.push(userinfo);
@@ -521,7 +524,7 @@ pub fn game_singal(id: String, v: Value, sender: Sender<UserEvent>)
  -> std::result::Result<(), Error>
 {
     let data: GameSingalRes = serde_json::from_value(v)?;
-    sender.send(UserEvent::GameSingal(data));
+    sender.send(UserEvent::GameSignal(data));
     Ok(())
 }
 

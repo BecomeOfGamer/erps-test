@@ -29,16 +29,16 @@ pub struct RoomRecord {
     pub ids: Vec<String>,
 }
 
-const TEAM_SIZE: usize = 1;
+const TEAM_SIZE: usize = 5;
 
 impl User {
     pub fn next_action(&mut self, tx: &mut Sender<MqttMsg>, rooms: &mut IndexMap<String, Rc<RefCell<RoomRecord>>>) {
         let mut rng = rand::thread_rng();
         let mut r = rng.gen_range(0, 10);
         if r > 4 {
-            return ()
+            //return ()
         }
-        if self.cnt >= 0 && self.cnt < 150 || self.isPlaying{
+        if self.cnt >= 0 && self.cnt < 10 || self.isPlaying{
             self.cnt += 1;
             return()
         }
@@ -50,7 +50,7 @@ impl User {
         }
         else if !self.isInRoom {
             r = rng.gen_range(0, 10);
-            if r < 5 {
+            if r < 3 {
                 self.create(tx);
                 let id = self.id.clone();
                 rooms.insert(
@@ -180,9 +180,26 @@ impl User {
             self.isStartQueue = true;
         }
         if !self.isStartQueue {
-            let msg = format!(r#"{{"id":"{}", "action":"start queue"}}"#, self.id);
-            let topic = format!("room/{}/send/start_queue", self.room);
-            tx.try_send(MqttMsg{topic:topic, msg:msg});
+            let mut rng = rand::thread_rng();
+            let mut r = rng.gen_range(0, 20);
+            if r < 5 {
+                let msg = format!(r#"{{"id":"{}", "action":"start queue", "mode":"rk1p2t"}}"#, self.id);
+                let topic = format!("room/{}/send/start_queue", self.room);
+                tx.try_send(MqttMsg{topic:topic, msg:msg});
+            } else if r < 10 {
+                let msg = format!(r#"{{"id":"{}", "action":"start queue", "mode":"ng1p2t"}}"#, self.id);
+                let topic = format!("room/{}/send/start_queue", self.room);
+                tx.try_send(MqttMsg{topic:topic, msg:msg});
+                
+            } else if r < 15 {
+                let msg = format!(r#"{{"id":"{}", "action":"start queue", "mode":"ng5p2t"}}"#, self.id);
+                let topic = format!("room/{}/send/start_queue", self.room);
+                tx.try_send(MqttMsg{topic:topic, msg:msg});
+            } else {
+                let msg = format!(r#"{{"id":"{}", "action":"start queue", "mode":"rk5p2t"}}"#, self.id);
+                let topic = format!("room/{}/send/start_queue", self.room);
+                tx.try_send(MqttMsg{topic:topic, msg:msg});
+            }
         }
     }
     pub fn get_start_queue(&mut self) {
