@@ -11,7 +11,7 @@ edition = "2018"
 
 [dependencies]
 indexmap = "1.2"
-crossbeam-channel = "0.3"
+crossbeam-channel = "0.4"
 rand = "*"
 mysql = "*"
 rumqtt = "0.31"
